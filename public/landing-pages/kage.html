@@ -3593,6 +3593,26 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   .trigger-status { display: none; }
 }
 </style>
+<script src="api-config.js"></script>
+<script>
+(function () {
+  "use strict";
+  function applyApiBridges() {
+    if (!window.API_CONFIG) return;
+    document.querySelectorAll("[data-api-src]").forEach(function (el) {
+      var spec = el.getAttribute("data-api-src").split(":");
+      var fn = window.API_CONFIG.banyuwangiTourism[spec[0]];
+      if (typeof fn === "function") el.setAttribute("src", fn(spec[1]));
+    });
+    document.querySelectorAll("[data-api-href]").forEach(function (el) {
+      var fn = window.API_CONFIG.banyuwangiTourism[el.getAttribute("data-api-href")];
+      if (typeof fn === "string") el.setAttribute("href", fn);
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyApiBridges);
+  else applyApiBridges();
+})();
+</script>
 </head>
 <body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
       data-layout-curriculum="b" data-layout-closing="b" data-layout-footer="b">
@@ -3906,7 +3926,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   <div class="berita-agenda-grid" data-rv="up" id="berita-agenda-layout">
     <!-- COLUMN 1: FEATURED NEWS SLIDER -->
     <article class="featured-news-card" id="featuredNewsCard" tabindex="0" role="button" aria-label="Berita Utama" data-cursor>
-      <img id="featuredNewsImg" class="featured-news-bg" src="https://banyuwangitourism.com/upload/news/6aab90fd497d2.jpg" alt="Workshop Gandrung Sewu 2026" loading="lazy" onerror="this.src='gallery/gandrung-sewu.jpg'">
+      <img id="featuredNewsImg" class="featured-news-bg" src="gallery/gandrung-sewu.jpg" data-api-src="newsUpload:6aab90fd497d2.jpg" alt="Workshop Gandrung Sewu 2026" loading="lazy" onerror="this.src='gallery/gandrung-sewu.jpg'">
       <div class="featured-news-overlay"></div>
       
       <div class="featured-news-content">
@@ -3959,7 +3979,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
       </div>
 
       <div class="terbaru-footer">
-        <a href="https://banyuwangitourism.com/berita" target="_blank" rel="noopener noreferrer" class="terbaru-all-btn" data-cursor>
+        <a href="#" data-api-href="newsPortalIndex" target="_blank" rel="noopener noreferrer" class="terbaru-all-btn" data-cursor>
           <span data-i18n="btn_view_all_news">Lihat Semua Posting</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
@@ -4647,7 +4667,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
         <p>Memuat isi warta lengkap...</p>
       </div>
       <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
-        <a id="beritaModalExtLink" href="https://banyuwangitourism.com/berita" target="_blank" rel="noopener noreferrer" class="berita-btn-more" style="text-decoration:none;">
+        <a id="beritaModalExtLink" href="#" data-api-href="newsPortalIndex" target="_blank" rel="noopener noreferrer" class="berita-btn-more" style="text-decoration:none;">
           <span data-i18n="berita_modal_open_ext">Buka di Banyuwangi Tourism</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17L17 7M7 7h10v10"/></svg>
         </a>
@@ -8870,7 +8890,7 @@ function wireBeritaSection() {
   function getImgUrl(foto) {
     if (!foto) return 'gallery/gandrung-sewu.jpg';
     if (foto.startsWith('http://') || foto.startsWith('https://')) return foto;
-    return 'https://banyuwangitourism.com/upload/news/' + encodeURIComponent(foto);
+    return API_CONFIG.banyuwangiTourism.newsUpload(foto);
   }
 
   function getFilteredNews() {
@@ -8904,7 +8924,7 @@ function wireBeritaSection() {
       modalText.innerHTML = item.text || ('<p>' + (item.title || '') + '</p>');
     }
     if (modalExtLink) {
-      modalExtLink.href = 'https://banyuwangitourism.com/berita/' + (item.slug || item.id || '');
+      modalExtLink.href = API_CONFIG.banyuwangiTourism.newsPortalArticle(item.slug || item.id || '');
     }
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
@@ -8922,7 +8942,7 @@ function wireBeritaSection() {
 
     if (item.slug) {
       try {
-        const detailRes = await fetch('https://banyuwangitourism.com/api/news/detail/' + encodeURIComponent(item.slug));
+        const detailRes = await fetch(API_CONFIG.banyuwangiTourism.newsDetail(item.slug));
         if (detailRes.ok) {
           const detailData = await detailRes.json();
           if (detailData && (detailData.text || detailData.title)) {
@@ -9482,9 +9502,9 @@ function wireBeritaSection() {
     }
 
     // 3. Fetch from API in background (try fast same-origin proxy first, then direct URL)
-    const queryParams = `start_date=${encodeURIComponent(dateStr)}&end_date=${encodeURIComponent(dateStr)}&per_page=10&page=1`;
-    const proxyUrl = `/api-sijamuwangi/v1/public/events?${queryParams}`;
-    const directUrl = `https://api-sijamuwangi.banyuwangikab.go.id/v1/public/events?${queryParams}`;
+    const queryParams = { start_date: dateStr, end_date: dateStr, per_page: 10, page: 1 };
+    const proxyUrl = API_CONFIG.sijamuwangi.eventsViaProxy(queryParams);
+    const directUrl = API_CONFIG.sijamuwangi.events(queryParams);
 
     let remoteEvents = null;
 
@@ -9537,8 +9557,8 @@ function wireBeritaSection() {
   // Prefetch general events from Sijamuwangi public API
   async function prefetchSijamuwangiGeneralEvents() {
     try {
-      const proxyUrl = '/api-sijamuwangi/v1/public/events?per_page=20&page=1';
-      const directUrl = 'https://api-sijamuwangi.banyuwangikab.go.id/v1/public/events?per_page=20&page=1';
+      const proxyUrl = API_CONFIG.sijamuwangi.eventsViaProxy({ per_page: 20, page: 1 });
+      const directUrl = API_CONFIG.sijamuwangi.events({ per_page: 20, page: 1 });
 
       let res = await fetch(proxyUrl, { headers: { 'Accept': 'application/json' } }).catch(() => null);
       if (!res || !res.ok) {
@@ -9589,7 +9609,7 @@ function wireBeritaSection() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 9000);
-      const res = await fetch('https://banyuwangitourism.com/api/news?category=nasional&orderBy=desc', {
+      const res = await fetch(API_CONFIG.banyuwangiTourism.newsList({ category: 'nasional', orderBy: 'desc' }), {
         signal: controller.signal
       });
       clearTimeout(timeoutId);
@@ -10229,10 +10249,6 @@ document.addEventListener('click', function(e) {
   if (!href) return;
 
   var routeMap = {
-    'bidang-pariwisata.html': '#/pariwisata',
-    'bidang-ekraf.html': '#/ekraf',
-    'bidang-kebudayaan.html': '#/kebudayaan',
-    'bidang-pemasaran.html': '#/pemasaran',
     'kage.html': '#/',
     'kage.html#bidang-uptd': '#/'
   };
