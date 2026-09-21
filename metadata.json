@@ -1,0 +1,6 @@
+{
+  "name": "jawaa",
+  "description": "Eksplorasi 3D interaktif Arsitektur Bangunan Pelinggihan, Monumen Air Mancur, Visual Plate Realistis, dan Pencahayaan Siang/Malam - DISBUDPAR Banyuwangi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
