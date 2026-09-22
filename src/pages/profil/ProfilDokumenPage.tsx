@@ -171,8 +171,15 @@ export function ProfilDokumenPage({ activeSubpage }: ProfilDokumenPageProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [activeTab]);
 
-  // Listen for language changes
+  // Listen for language changes: custom event (same-tab toggle), storage
+  // (cross-tab), and postMessage (from embedded iframes).
   useEffect(() => {
+    const handleLangEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<Language>;
+      if (customEvent.detail === "id" || customEvent.detail === "en") {
+        setLang(customEvent.detail);
+      }
+    };
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "disbudpar_lang" && (e.newValue === "id" || e.newValue === "en")) {
         setLang(e.newValue as Language);
@@ -183,9 +190,11 @@ export function ProfilDokumenPage({ activeSubpage }: ProfilDokumenPageProps) {
         setLang(e.data.lang as Language);
       }
     };
+    window.addEventListener("disbudpar-lang-change", handleLangEvent);
     window.addEventListener("storage", handleStorage);
     window.addEventListener("message", handleMessage);
     return () => {
+      window.removeEventListener("disbudpar-lang-change", handleLangEvent);
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener("message", handleMessage);
     };

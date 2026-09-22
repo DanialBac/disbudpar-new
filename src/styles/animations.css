@@ -1794,6 +1794,41 @@ img.sunset-valley-fallback {
   }
 }
 
+/* Light "official document" paper card (Profil → Disbudpar). Floats on the
+   dark shell like a printed agency profile sheet, per the reference design. */
+.profil-paper {
+  position: relative;
+  animation: profil-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.profil-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  border-radius: 28px 0 0 28px;
+  background: linear-gradient(180deg, #c9a24a 0%, #e2b168 45%, #38bdf8 100%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .profil-paper {
+    border-radius: 20px;
+  }
+
+  .profil-paper::before {
+    width: 4px;
+    border-radius: 20px 0 0 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profil-paper {
+    animation: none;
+  }
+}
+
 /* ============================================================
    BIDANG PAGES (TypeScript port of bidang-*.html)
    Tokens + entrance animation for the native React division pages.
